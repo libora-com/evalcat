@@ -7,7 +7,7 @@ from result_list import ResultList
 from field import Field
 
 
-# Mock functions for testing ResultList.
+"""Mock functions for testing ResultList."""
 
 # Defines a result in our collection.
 Result = collections.namedtuple('Result', ['value'])
@@ -26,6 +26,7 @@ def metric_product(results):
     return prod
 
 
+# Input for ResultList is in this format.
 MOCK_RESULTS = {
     'system A': {
         'query 1': [Result(5), Result(2), Result(1)],
@@ -38,6 +39,7 @@ MOCK_RESULTS = {
     }
 }
 
+# Mock result (Output DataFrame will be made from this).
 TEST_RESULTS = {
     'system A': {
         'query 1': {'metric_sum': 8, 'metric_product': 10},
@@ -52,6 +54,7 @@ TEST_RESULTS = {
 }
 
 
+# Mock Field class using the metrics `metric_sum` and `metric_product`.
 class MockField(Field):
     def __init__(self):
         super().__init__('mock')
@@ -66,6 +69,9 @@ class MockField(Field):
         }
 
 
+"""Test Classes"""
+
+
 class TestResultList(unittest.TestCase):
     def setUp(self):
         self.result_list = ResultList(MOCK_RESULTS)
@@ -78,8 +84,13 @@ class TestResultList(unittest.TestCase):
                    val[metric] for val in TEST_RESULTS[system].values()
                ] for metric in ['metric_sum', 'metric_product']
             }, index=TEST_RESULTS[system].keys())
-
-            print(test_result)
+            """Example output for system A
+            |        |metric_sum|metric_product|
+            |-------|----------|--------------|
+            |query 1|         8|            10|
+            |query 2|         4|             3|
+            |query 3|         7|            10|
+            """
 
             result_df = self.result_list.get_query_metric_matrix(self.mock_field, system)
             pd.testing.assert_frame_equal(result_df, test_result)
@@ -91,8 +102,12 @@ class TestResultList(unittest.TestCase):
                     val[query][metric] for val in TEST_RESULTS.values()
                 ] for metric in ['metric_sum', 'metric_product']
             }, index=TEST_RESULTS.keys())
-
-            print(test_result)
+            """Example output for query 1
+            |        |metric_sum|metric_product|
+            |--------|----------|--------------|
+            |system A|         8|            10|
+            |system B|        11|            24|
+            """
 
             result_df = self.result_list.get_system_metric_matrix(self.mock_field, query)
             pd.testing.assert_frame_equal(result_df, test_result)
@@ -104,8 +119,12 @@ class TestResultList(unittest.TestCase):
                     val[query][metric] for val in TEST_RESULTS.values()
                 ] for query in ['query 1', 'query 2', 'query 3']
             }, index=TEST_RESULTS.keys())
-
-            print(test_result)
+            """Example output for metric_sum
+            |        |query 1|query 2|query 3|
+            |--------|-------|-------|-------|
+            |system A|      8|      4|      7|
+            |system B|     11|      5|      8|
+            """
 
             result_df = self.result_list.get_system_query_matrix(self.mock_field, metric)
             pd.testing.assert_frame_equal(result_df, test_result)
