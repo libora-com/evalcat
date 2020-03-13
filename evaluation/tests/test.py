@@ -92,7 +92,7 @@ class TestResultList(unittest.TestCase):
             |query 3|         7|            10|
             """
 
-            result_df = self.result_list.get_query_metric_matrix(system)
+            result_df = self.result_list.get_query_metric_matrix(field_name='mock', system=system)
             pd.testing.assert_frame_equal(result_df, test_result)
 
     def test_get_system_metric_matrix(self):
@@ -110,7 +110,7 @@ class TestResultList(unittest.TestCase):
             |system B|        11|            24|
             """
 
-            result_df = self.result_list.get_system_metric_matrix(query)
+            result_df = self.result_list.get_system_metric_matrix(field_name='mock', query=query)
             pd.testing.assert_frame_equal(result_df, test_result)
 
     def test_get_system_query_matrix(self):
@@ -128,7 +128,7 @@ class TestResultList(unittest.TestCase):
             |system B|     11|      5|      8|
             """
 
-            result_df = self.result_list.get_system_query_matrix(metric)
+            result_df = self.result_list.get_system_query_matrix(field_name='mock', metric=metric)
             pd.testing.assert_frame_equal(result_df, test_result)
 
 

@@ -24,30 +24,30 @@ Note that each system is evaluated with the same query set.
             'query 2': [Result1, Result2],
             'query 3': [Result1, Result2],
         }
-    }, [FieldClass()])
+    }, [FieldClass('field_name')])
 ```
 
-The three main comparison methods are `get_query_metric_matrix(system)`, `get_system_metric_matrix(query)` and `get_system_query_matrix(metric)`.
+The three main comparison methods are `get_query_metric_matrix()`, `get_system_metric_matrix()` and `get_system_query_matrix()`.
 
-`get_query_metric_matrix(system)` compares queries against metrics for a single system.
+`get_query_metric_matrix(field_name, system)` compares queries against metrics for a single system.
 ```
->>> result_list.get_query_metric_matrix(system='system A')
+>>> result_list.get_query_metric_matrix('field_name', system='system A')
 |       |metric 1|metric 2|
 |-------|--------|--------|
 |query 1|  0.12  |  0.45  |
 |query 2|  0.32  |  0.65  |
 ```
-`get_system_metric_matrix(query)` compares systems against metrics for a single query.
+`get_system_metric_matrix(field_name, query)` compares systems against metrics for a single query.
 ```
->>> result_list.overall_df(query='query 1')
+>>> result_list.overall_df('field_name', query='query 1')
 |        |metric 1|metric 2|
 |--------|--------|--------|
 |system 1|  0.12  |  0.45  |
 |system 2|  0.34  |  0.56  |
 ```
-`get_system_query_matrix(metric)` compares systems against queries for a single metric.
+`get_system_query_matrix(field_name, metric)` compares systems against queries for a single metric.
 ```
->>> result_list.overall_df(metric='metric 1')
+>>> result_list.overall_df('field_name', metric='metric 1')
 |        |query 1|query 2|
 |--------|-------|-------|
 |system 1|  0.12 |  0.32 |
