@@ -14,11 +14,11 @@ class ResultList:
 
     Methods
     -------
-    get_query_metric_matrix(field_name, system)
+    get_query_metric_df(field_name, system)
         Returns a DataFrame comparing queries against metrics for a single system and field.
-    get_system_metric_matrix(field_name, query)
+    get_system_metric_df(field_name, query)
         Returns a DataFrame comparing systems against metrics for a single query and field.
-    get_system_query_matrix(field_name, metric)
+    get_system_query_df(field_name, metric)
         Returns a DataFrame comparing systems against queries for a single metric and field.
     """
     def __init__(self, results, fields=None, k=10):
@@ -32,7 +32,7 @@ class ResultList:
             summary[field.name] = field.at_k(self.results, k)
         return summary
 
-    def get_query_metric_matrix(self, field_name, system):
+    def get_query_metric_df(self, field_name, system):
         """Returns a DataFrame comparing queries against metrics for a single system.
 
         Parameters
@@ -53,7 +53,7 @@ class ResultList:
             ] for metric in ['metric_sum', 'metric_product']
         }, index=self.summary[field_name][system].keys())
 
-    def get_system_metric_matrix(self, field_name, query):
+    def get_system_metric_df(self, field_name, query):
         """Returns a DataFrame comparing systems against metrics for a single query.
 
         Parameters
@@ -74,7 +74,7 @@ class ResultList:
             ] for metric in ['metric_sum', 'metric_product']
         }, index=self.summary[field_name].keys())
 
-    def get_system_query_matrix(self, field_name, metric):
+    def get_system_query_df(self, field_name, metric):
         """Returns a DataFrame comparing systems against queries for a single metric.
 
         Parameters
