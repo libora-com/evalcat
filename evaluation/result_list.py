@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 from .base_result import BaseResult
 
 
@@ -13,7 +10,17 @@ class ResultList:
     results
         BaseResult-like search results.
     fields : list of Field
-        Contains the fields to be evaluated
+        Contains the fields to be evaluated. List items should be instances of Field subclasses.
+
+    Attributes
+    ----------
+    base_result : BaseResult
+        Stores the search results.
+    fields : list of Field
+        Contains a list of Field subclass instances.
+    summary : pd.DataFrame
+        DataFrame with MultiIndex (system, query) and column metric.
+        Contains the computed metrics for the search results.
 
     Methods
     -------
@@ -35,7 +42,7 @@ class ResultList:
     def _compute_summary(self, k=10):
         summary = {}
         for field in self.fields:
-            summary[field.name] = field.at_k(self.base_result.result, k)
+            summary[field.name] = field.compute_metrics(self.base_result, k)
         return summary
 
     def get_query_metric_df(self, field_name, system):
@@ -53,11 +60,7 @@ class ResultList:
         DataFrame
             DataFrame with index queries and column metrics.
         """
-        return pd.DataFrame({
-            metric: [
-                val[metric] for val in self.summary[field_name][system].values()
-            ] for metric in ['metric_sum', 'metric_product']
-        }, index=self.base_result.queries)
+        return self.summary[field_name].loc[system]
 
     def get_system_metric_df(self, field_name, query):
         """Returns a DataFrame comparing systems against metrics for a single query.
@@ -74,11 +77,7 @@ class ResultList:
         DataFrame
             DataFrame with index systems and column metrics.
         """
-        return pd.DataFrame({
-            metric: [
-                val[query][metric] for val in self.summary[field_name].values()
-            ] for metric in ['metric_sum', 'metric_product']
-        }, index=self.base_result.systems)
+        return self.summary[field_name].xs(query, level=1)
 
     def get_system_query_df(self, field_name, metric):
         """Returns a DataFrame comparing systems against queries for a single metric.
@@ -95,8 +94,4 @@ class ResultList:
         DataFrame
             DataFrame with index systems and column queries.
         """
-        return pd.DataFrame({
-            query: [
-                val[query][metric] for val in self.summary[field_name].values()
-            ] for query in self.base_result.queries
-        }, index=self.base_result.systems)
+        return self.summary[field_name].loc[:, metric].unstack(1)

@@ -9,7 +9,7 @@ from ..field import Field
 
 """Mock functions for testing ResultList."""
 
-# Defines a result in our collection.
+# Defines a document (search result item) in our collection.
 Result = collections.namedtuple('Result', ['value'])
 
 
@@ -60,13 +60,7 @@ class MockField(Field):
         super().__init__('mock')
 
     def at_k(self, res, k=10):
-        return {
-            system: {
-                query: {
-                    metric.__name__: metric(results[:k]) for metric in [metric_sum, metric_product]
-                } for query, results in query_res.items()
-            } for system, query_res in res.items()
-        }
+        return {metric.__name__: metric(res[:k]) for metric in [metric_sum, metric_product]}
 
 
 """Test Classes"""
@@ -77,6 +71,7 @@ class TestResultList(unittest.TestCase):
         self.result_list = ResultList(MOCK_RESULTS, [MockField()])
 
     def test_get_query_metric_matrix(self):
+        # Testing good queries.
         for system in ['system A', 'system B']:
             test_result = pd.DataFrame({
                metric: [
@@ -94,6 +89,11 @@ class TestResultList(unittest.TestCase):
 
             result_df = self.result_list.get_query_metric_df(field_name='mock', system=system)
             pd.testing.assert_frame_equal(result_df, test_result)
+
+        # Testing bad queries
+        with self.assertRaises(KeyError):
+            self.result_list.get_query_metric_df(field_name='wrong_field', system='system A')
+            self.result_list.get_query_metric_df(field_name='mock', system='wrong_system')
 
     def test_get_system_metric_matrix(self):
         for query in ['query 1', 'query 2', 'query 3']:
@@ -113,6 +113,11 @@ class TestResultList(unittest.TestCase):
             result_df = self.result_list.get_system_metric_df(field_name='mock', query=query)
             pd.testing.assert_frame_equal(result_df, test_result)
 
+            # Testing bad queries
+            with self.assertRaises(KeyError):
+                self.result_list.get_system_metric_df(field_name='wrong_field', query='query 1')
+                self.result_list.get_system_metric_df(field_name='mock', query='wrong_query')
+
     def test_get_system_query_matrix(self):
         for metric in ['metric_sum', 'metric_product']:
             test_result = pd.DataFrame({
@@ -130,6 +135,11 @@ class TestResultList(unittest.TestCase):
 
             result_df = self.result_list.get_system_query_df(field_name='mock', metric=metric)
             pd.testing.assert_frame_equal(result_df, test_result)
+
+            # Testing bad queries
+            with self.assertRaises(KeyError):
+                self.result_list.get_system_query_df(field_name='wrong_field', metric='metric_sum')
+                self.result_list.get_system_query_df(field_name='mock', metric='wrong_metric')
 
 
 if __name__ == '__main__':
