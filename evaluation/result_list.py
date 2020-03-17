@@ -1,6 +1,9 @@
 import pandas as pd
 
 
+from .base_result import BaseResult
+
+
 class ResultList:
     """
     ResultList provides methods for evaluation of search systems over queries and metrics.
@@ -8,7 +11,7 @@ class ResultList:
     Parameters
     ----------
     results
-        Search results defined in the README. TODO: Should give the ES results its own class for simplicity [1].
+        BaseResult-like search results.
     fields : list of Field
         Contains the fields to be evaluated
 
@@ -21,15 +24,18 @@ class ResultList:
     get_system_query_df(field_name, metric)
         Returns a DataFrame comparing systems against queries for a single metric and field.
     """
-    def __init__(self, results, fields=None, k=10):
-        self.results = results
+    def __init__(self, results, fields=None, k=10, **kwargs):
+        if isinstance(results, BaseResult):
+            self.base_result = results
+        else:
+            self.base_result = BaseResult(results, **kwargs)
         self.fields = fields
         self.summary = self._compute_summary(k)
 
     def _compute_summary(self, k=10):
         summary = {}
         for field in self.fields:
-            summary[field.name] = field.at_k(self.results, k)
+            summary[field.name] = field.at_k(self.base_result.result, k)
         return summary
 
     def get_query_metric_df(self, field_name, system):
@@ -51,7 +57,7 @@ class ResultList:
             metric: [
                 val[metric] for val in self.summary[field_name][system].values()
             ] for metric in ['metric_sum', 'metric_product']
-        }, index=self.summary[field_name][system].keys())
+        }, index=self.base_result.queries)
 
     def get_system_metric_df(self, field_name, query):
         """Returns a DataFrame comparing systems against metrics for a single query.
@@ -72,7 +78,7 @@ class ResultList:
             metric: [
                 val[query][metric] for val in self.summary[field_name].values()
             ] for metric in ['metric_sum', 'metric_product']
-        }, index=self.summary[field_name].keys())
+        }, index=self.base_result.systems)
 
     def get_system_query_df(self, field_name, metric):
         """Returns a DataFrame comparing systems against queries for a single metric.
@@ -92,5 +98,5 @@ class ResultList:
         return pd.DataFrame({
             query: [
                 val[query][metric] for val in self.summary[field_name].values()
-            ] for query in ['query 1', 'query 2', 'query 3']
-        }, index=self.summary[field_name].keys())
+            ] for query in self.base_result.queries
+        }, index=self.base_result.systems)
