@@ -4,7 +4,7 @@ import unittest
 import pandas as pd
 
 from ..result_list import ResultList
-from ..field import Field
+from fields.base import Field
 
 
 """Mock functions for testing ResultList."""

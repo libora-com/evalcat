@@ -20,8 +20,19 @@ class Field(abc.ABC):
     def __str__(self):
         return self.name
 
+    def process_base_result(self, base_result):
+        """Pre-processes a BaseResult instance for use by `compute_metrics`.
+
+        Override to implement specific pre-processing of search results.
+
+        Parameters
+        ----------
+        base_result : BaseResult
+            Contains the full search results.
+        """
+
     def compute_metrics(self, base_result, k):
-        """Returns a DataFrame with MultiIndex (system, query) and column metric.
+        """Computes metrics and returns a DataFrame with MultiIndex (system, query) and column metric.
 
         Should be called directly by ResultList to generate a summary DataFrame for this field.
 
@@ -42,6 +53,8 @@ class Field(abc.ABC):
         -----
         Iterates over system and query, applying `at_k` to each search result list.
         """
+        self.process_base_result(base_result)
+
         metrics = []
         metric_labels = []
         for system in base_result.systems:

@@ -49,6 +49,11 @@ def _check_queries(results, queries=None):
     -------
     queries : list of str
         A list of queries.
+
+    Raises
+    ------
+    ValueError
+        If not all systems have the same query set.
     """
 
     if not queries:
