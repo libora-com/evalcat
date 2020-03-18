@@ -7,8 +7,20 @@ class ResultList:
 
     Parameters
     ----------
-    results
-        BaseResult-like search results.
+    results : dict, or BaseResult
+        Dict should be structured as follows
+        ```
+        {
+            "system A": {
+                "query 1": [Item1, Item2],
+                "query 2": [Item1, Item2, Item3],
+            },
+            "system B": {
+                "query 1": [Item1, Item2],
+                "query 2": [Item1],
+            },
+        }
+        ```
     fields : list of Field
         Contains the fields to be evaluated. List items should be instances of Field subclasses.
 

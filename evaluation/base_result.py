@@ -8,15 +8,14 @@ class BaseResult(dict):
         Nested python dictionary of search results. The structure should be
         ```
         {
-            'system A': {
-                'query 1': [Result1, Result2, Result3],
-                'query 2': [Result1],
-                'query 3': [Result1, Result2],
-            }, 'system B': {
-                'query 1': [Result1, Result2],
-                'query 2': [Result1, Result2],
-                'query 3': [Result1, Result2],
-            }
+            "system A": {
+                "query 1": [Item1, Item2],
+                "query 2": [Item1, Item2, Item3],
+            },
+            "system B": {
+                "query 1": [Item1, Item2],
+                "query 2": [Item1],
+            },
         }
         ```
     queries : list of str, default=None
