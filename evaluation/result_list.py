@@ -1,4 +1,5 @@
-from .base_result import BaseResult
+from evaluation.base_result import BaseResult
+from evaluation.fields.base import Field
 
 
 class ResultList:
@@ -57,6 +58,15 @@ class ResultList:
             summary[field.name] = field.compute_metrics(self.base_result, k)
         return summary
 
+    def _get_field_from_summary(self, field_name):
+        if isinstance(field_name, str):
+            if field_name not in self.summary:
+                raise ValueError("Field is not in result_list.")
+            else:
+                return self.summary[field_name]
+        else:
+            raise TypeError("`field_name` must be a string.")
+
     def get_query_metric_df(self, field_name, system):
         """Returns a DataFrame comparing queries against metrics for a single system.
 
@@ -72,7 +82,9 @@ class ResultList:
         DataFrame
             DataFrame with index queries and column metrics.
         """
-        return self.summary[field_name].loc[system]
+        if system not in self.base_result.systems:
+            raise ValueError("System not in result_list.")
+        return self._get_field_from_summary(field_name).loc[system]
 
     def get_system_metric_df(self, field_name, query):
         """Returns a DataFrame comparing systems against metrics for a single query.
@@ -89,7 +101,9 @@ class ResultList:
         DataFrame
             DataFrame with index systems and column metrics.
         """
-        return self.summary[field_name].xs(query, level=1)
+        if query not in self.base_result.queries:
+            raise ValueError("Query not in result_list.")
+        return self._get_field_from_summary(field_name).xs(query, level=1)
 
     def get_system_query_df(self, field_name, metric):
         """Returns a DataFrame comparing systems against queries for a single metric.
@@ -106,4 +120,7 @@ class ResultList:
         DataFrame
             DataFrame with index systems and column queries.
         """
-        return self.summary[field_name].loc[:, metric].unstack(1)
+        summary_field = self._get_field_from_summary(field_name)
+        if metric not in summary_field.columns.values:
+            raise ValueError("Metric not calculated for this field.")
+        return summary_field.loc[:, metric].unstack(1)
