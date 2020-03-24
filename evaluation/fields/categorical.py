@@ -19,7 +19,10 @@ class CategoricalField(Field):
 
     def __init__(self, name, labels=None, ignore_none=True):
         super().__init__(name)
-        self.labels = set(labels)
+        if labels:
+            self.labels = set(labels)
+        else:
+            self.labels = None
         self.ignore_none = ignore_none
 
     def process_base_result(self, base_result):
@@ -53,20 +56,28 @@ class CategoricalField(Field):
         return labels
 
     def at_k(self, result_list, k=10):
-        label_count = {label: 0 for label in self.labels}
+        if not result_list:
+            metrics = {label: None for label in self.labels}
+            metrics['unique_count'] = None
+            return metrics
+
+        metrics = {label: 0 for label in self.labels}
         unique_labels = set()
+        total_count = 0
 
         for item in result_list[:k]:
             label = item[self.name]
             if label in self.labels:
-                label_count[label] += 1
+                metrics[label] += 1
+                total_count += 1
                 unique_labels.add(label)
             elif not self.ignore_none:  # Catches other labels
-                label_count[None] += 1
+                metrics[None] += 1
                 unique_labels.add(None)
+                total_count += 1
 
-        if len(unique_labels) > 0:
-            label_count = {k: v / len(unique_labels) for k, v in label_count.items()}
-        label_count['unique_count'] = len(unique_labels)
+        if len(result_list[:k]) > 0:
+            metrics = {key: v / total_count for key, v in metrics.items()}
+        metrics['unique_count'] = len(unique_labels)
 
-        return label_count
+        return metrics

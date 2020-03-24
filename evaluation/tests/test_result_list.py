@@ -1,30 +1,41 @@
-import collections
 import unittest
 
 import pandas as pd
 
 from evaluation.result_list import ResultList
-from fields.base import Field
+from evaluation.fields.base import Field
 
 
 """Mock functions for testing ResultList."""
 
+
 # Defines a document (search result item) in our collection.
-Result = collections.namedtuple('Result', ['value'])
+class Result(dict):
+    def __init__(self, value):
+        super().__init__(value=value)
 
 
 # Defines a mock metric 1: the sum of values from a list of results.
 def metric_sum(results):
-    return sum(res.value for res in results if res.value is not None)
+    return sum(item['value'] for item in results if item['value'] is not None)
 
 
 # Defines a mock metric 2: the product of values from a list of results.
 def metric_product(results):
     prod = 1
-    for res in results:
-        if res.value:
-            prod *= res.value
+    for item in results:
+        if item['value']:
+            prod *= item['value']
     return prod
+
+
+# Mock Field class using the metrics `metric_sum` and `metric_product`.
+class MockField(Field):
+    def __init__(self):
+        super().__init__('mock')
+
+    def at_k(self, res, k=10):
+        return {metric.__name__: metric(res[:k]) for metric in [metric_sum, metric_product]}
 
 
 # Input for ResultList is in this format.
@@ -53,15 +64,6 @@ TEST_RESULTS = {
         'query 3': {'metric_sum': 8, 'metric_product': 12}
     }
 }
-
-
-# Mock Field class using the metrics `metric_sum` and `metric_product`.
-class MockField(Field):
-    def __init__(self):
-        super().__init__('mock')
-
-    def at_k(self, res, k=10):
-        return {metric.__name__: metric(res[:k]) for metric in [metric_sum, metric_product]}
 
 
 """Test Classes"""

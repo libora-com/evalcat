@@ -14,23 +14,42 @@ class NumericalField(Field):
         The name of the field indexed in each search item.
     percentiles : list of int or float, optional
         Contains the percentiles to compute. If not provided, will default to [1, 25, 50, 75, 99].
+    ignore_none : bool, default=True
+        If set to True, will ignore field values that are 'None'.
+        Else if set to False, will convert all 'None' values to 0.
     """
-    def __init__(self, name, percentiles=None):
+    def __init__(self, name, percentiles=None, ignore_none=True):
         super().__init__(name)
         if percentiles:
             self.percentiles = percentiles
         else:
             self.percentiles = [1, 25, 50, 75, 99]
+        self.ignore_none = ignore_none
 
     def at_k(self, result_list, k=10):
-        total = sum(item[self.name] for item in result_list[:k])
-        percents = percentile([item['price'] for item in result_list[:k]], self.percentiles)
+        if not result_list:  # Empty results list.
+            metrics = {f'{n}-percentile': None for n in self.percentiles}
+            metrics['total'] = None
+            metrics['average'] = None
+            return metrics
+
+        field_values = []
+        total = 0
+        for item in result_list[:k]:
+            val = item[self.name]
+            if val:
+                total += val
+                field_values.append(val)
+            elif not self.ignore_none:
+                field_values.append(0)
+
+        percents = percentile(field_values, self.percentiles)
         metrics = {
-            f'{n}-percentile': percents[idx] for idx, n in self.percentiles
+            f'{n}-percentile': percents[idx] for idx, n in enumerate(self.percentiles)
         }
 
         metrics['total'] = total
-        metrics['average'] = total / len(result_list[:k])
+        metrics['average'] = total / len(field_values)
 
         return metrics
 
@@ -51,7 +70,7 @@ def percentile(arr, percentiles):
         Output array of the same length as `percentiles`.
     """
     if not arr:
-        return None
+        return []
     arr = list(sorted(arr))
     output = [0] * len(percentiles)
     for idx, p in enumerate(percentiles):

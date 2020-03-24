@@ -31,8 +31,8 @@ class BaseResult(dict):
 
     def __init__(self, results, queries=None):
         super().__init__(results)
-        self.systems = list(results.keys())
-        self.queries = _check_queries(results, queries)
+        self.systems = list(results.keys()) if results else []
+        self.queries = _check_queries(results, queries) if results else []
 
 
 def _check_queries(results, queries=None):
