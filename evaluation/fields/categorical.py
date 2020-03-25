@@ -55,11 +55,13 @@ class CategoricalField(Field):
                         labels.add(None)
         return labels
 
-    def at_k(self, result_list, k=10):
+    def at_k(self, result_list, k=None):
         if not result_list:
             metrics = {label: None for label in self.labels}
             metrics['unique_count'] = None
             return metrics
+        if not k:
+            k = len(result_list)
 
         metrics = {label: 0 for label in self.labels}
         unique_labels = set()

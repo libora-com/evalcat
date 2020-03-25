@@ -1,5 +1,9 @@
+import pandas as pd
+
+
 from evaluation.base_result import BaseResult
 from evaluation.fields.base import Field
+from evaluation.rbo import rbo
 
 
 class ResultList:
@@ -53,6 +57,8 @@ class ResultList:
         self.summary = self._compute_summary(k)
 
     def _compute_summary(self, k=10):
+        if not self.fields:
+            return
         summary = {}
         for field in self.fields:
             summary[field.name] = field.compute_metrics(self.base_result, k)
@@ -124,3 +130,57 @@ class ResultList:
         if metric not in summary_field.columns.values:
             raise ValueError("Metric not calculated for this field.")
         return summary_field.loc[:, metric].unstack(1)
+
+    def rank_biased_overlap(self, identifier='id', systems=None, p=0.9):
+        """Computes the rank-biased overlap (RBO) of two systems across all queries.
+
+        Parameters
+        ----------
+        identifier : str
+            The name of a metric that can uniquely identify a search result item.
+        systems : list of str, optional
+            The names of the two systems to be compared. If not provided, will compare the first two systems.
+        p : float, default=0.9
+            A RBO parameter modelling the user's persistence, or the probability of continuing to the next search item.
+        Returns
+        -------
+        DataFrame
+            DataFrame with index queries and columns [rbo_min, rbo_res, rbo_ext].
+
+        Notes
+        -----
+        For each query, will compute the triplet (RBO_min, RBO_res, RBO_ext) between the two systems as defined in [1]_.
+        The implementation accounts for uneven lists but not ties.
+
+        .. [1] William Webber, Alistair Moffat, and Justin Zobel. 2010. A similarity measure for indefinite rankings.
+           ACM Trans. Inf. Syst. 28, 4, Article 20 (November 2010), 38 pages.
+           DOI:https://doi.org/10.1145/1852102.1852106
+        """
+        if len(self.base_result.systems) < 2:
+            raise RuntimeError('There are less than 2 systems in the results but RBO requires 2 systems.')
+        if systems:
+            try:
+                if len(systems) != 2:
+                    raise ValueError('RBO can only compare 2 systems.')
+                res1 = self.base_result[systems[0]]
+                res2 = self.base_result[systems[1]]
+            except TypeError:
+                raise TypeError('`systems` must be a list containing the names of 2 systems.')
+            except ValueError as e:
+                raise e
+            except KeyError:
+                raise ValueError('Systems provided are not in results.')
+        else:
+            res1 = self.base_result[self.base_result.systems[0]]
+            res2 = self.base_result[self.base_result.systems[1]]
+
+        rbos = []
+        for query in self.base_result.queries:
+            id1 = [item[identifier] for item in res1[query]]
+            id2 = [item[identifier] for item in res2[query]]
+            if not id1 or not id2:
+                rbos.append((None, None, None))
+            else:
+                rbos.append(rbo(id1, id2, p))
+
+        return pd.DataFrame(rbos, index=self.base_result.queries, columns=['rbo_min', 'rbo_res', 'rbo_ext'])

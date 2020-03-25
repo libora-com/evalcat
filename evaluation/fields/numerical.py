@@ -26,12 +26,14 @@ class NumericalField(Field):
             self.percentiles = [1, 25, 50, 75, 99]
         self.ignore_none = ignore_none
 
-    def at_k(self, result_list, k=10):
+    def at_k(self, result_list, k=None):
         if not result_list:  # Empty results list.
             metrics = {f'{n}-percentile': None for n in self.percentiles}
             metrics['total'] = None
             metrics['average'] = None
             return metrics
+        if not k:
+            k = len(result_list)
 
         field_values = []
         total = 0

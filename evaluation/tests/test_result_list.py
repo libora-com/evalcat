@@ -151,6 +151,70 @@ class TestResultList(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.result_list.get_system_query_df(field_name='mock', metric='wrong_metric')
 
+    def test_rank_bias_overlap(self):
+        # Both systems returns identical result lists.
+        reslist1 = ResultList({
+            'system A': {
+                'query 1': [Result(1), Result(2), Result(3)],
+                'query 2': [Result(1), Result(2)]
+            },
+            'system B': {
+                'query 1': [Result(1), Result(2), Result(3)],
+                'query 2': [Result(1), Result(2)]
+            }
+        })
+        pd.testing.assert_frame_equal(
+            reslist1.rank_biased_overlap(identifier='value'),
+            pd.DataFrame([[0.5225283643313484, 0.47747163566865164, 1.0],
+                          [0.41168557622089896, 0.588314423779101, 1.0]],
+                         index=['query 1', 'query 2'], columns=['rbo_min', 'rbo_res', 'rbo_ext']),
+        )
+        pd.testing.assert_frame_equal(
+            reslist1.rank_biased_overlap(identifier='value', systems=['system A', 'system B']),
+            pd.DataFrame([[0.5225283643313484, 0.47747163566865164, 1.0],
+                          [0.41168557622089896, 0.588314423779101, 1.0]],
+                         index=['query 1', 'query 2'], columns=['rbo_min', 'rbo_res', 'rbo_ext']),
+        )
+        # Both systems returns different result lists.
+        reslist2 = ResultList({
+            'system A': {
+                'query 1': [Result(1), Result(2), Result(3)],  # Ordered differently.
+                'query 2': [Result(1), Result(2), Result(3)],  # Uneven lengths.
+                'query 3': [Result(1), Result(2), Result(3)],  # Different results.
+                'query 4': [Result(1), Result(2), Result(3)],  # Different results.
+                'query 5': [],  # No results
+                'query 6': []  # No results
+            },
+            'system B': {
+                'query 1': [Result(3), Result(2), Result(1)],
+                'query 2': [Result(1), Result(2)],
+                'query 3': [Result(4), Result(5)],
+                'query 4': [Result(2), Result(5)],
+                'query 5': [],
+                'query 6': [Result(1), Result(2)]
+            }
+        })
+        pd.testing.assert_frame_equal(
+            reslist2.rank_biased_overlap(identifier='value'),
+            pd.DataFrame([[0.3775283643313485, 0.47747163566865164, 0.8550000000000001],
+                          [0.41168557622089896, 0.5883144237791011, 1.0],
+                          [0.0, 0.7377750000000001, 0.0],
+                          [0.15584278811044952, 0.6721572118895507, 0.45],
+                          [None, None, None],
+                          [None, None, None],
+                          ],
+                         index=[f'query {i}' for i in range(1, 7)], columns=['rbo_min', 'rbo_res', 'rbo_ext']),
+        )
+        # Malformed queries
+        with self.assertRaises(KeyError):
+            reslist2.rank_biased_overlap(identifier='id')
+        with self.assertRaises(TypeError):
+            reslist2.rank_biased_overlap(identifier='id', systems=3)
+        with self.assertRaises(ValueError):
+            reslist2.rank_biased_overlap(identifier='id', systems=['system A'])
+        with self.assertRaises(ValueError):
+            reslist2.rank_biased_overlap(identifier='id', systems=['system A', 'System C'])
+
 
 if __name__ == '__main__':
     unittest.main()
