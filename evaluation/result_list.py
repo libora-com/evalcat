@@ -78,10 +78,10 @@ class ResultList:
 
         Parameters
         ----------
-        system : str
-            The name of the system.
         field_name : str
             The name of the field.
+        system : str
+            The name of the system.
 
         Returns
         -------
@@ -97,10 +97,10 @@ class ResultList:
 
         Parameters
         ----------
-        query : str
-            The query string.
         field_name : str
             The name of the field.
+        query : str
+            The query string.
 
         Returns
         -------
@@ -116,10 +116,10 @@ class ResultList:
 
         Parameters
         ----------
-        metric : str
-            The name of the metric.
         field_name : str
             The name of the field.
+        metric : str
+            The name of the metric.
 
         Returns
         -------

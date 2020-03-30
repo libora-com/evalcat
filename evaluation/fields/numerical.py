@@ -27,11 +27,6 @@ class NumericalField(Field):
         self.ignore_none = ignore_none
 
     def at_k(self, result_list, k=None):
-        if not result_list:  # Empty results list.
-            metrics = {f'{n}-percentile': None for n in self.percentiles}
-            metrics['total'] = None
-            metrics['average'] = None
-            return metrics
         if not k:
             k = len(result_list)
 
@@ -39,19 +34,24 @@ class NumericalField(Field):
         total = 0
         for item in result_list[:k]:
             val = item[self.name]
-            if val:
+            if val is not None:
                 total += val
                 field_values.append(val)
             elif not self.ignore_none:
                 field_values.append(0)
 
+        if not field_values:  # No field values can be retrieved.
+            metrics = {f'{n}-percentile': None for n in self.percentiles}
+            metrics['total'] = None
+            metrics['mean'] = None
+            return metrics
+
         percents = percentile(field_values, self.percentiles)
         metrics = {
             f'{n}-percentile': percents[idx] for idx, n in enumerate(self.percentiles)
         }
-
         metrics['total'] = total
-        metrics['average'] = total / len(field_values)
+        metrics['mean'] = total / len(field_values)
 
         return metrics
 

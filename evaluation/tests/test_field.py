@@ -59,27 +59,27 @@ CATEGORICAL_RESULTS_2 = {
 
 NUMERICAL_RESULTS_1 = {
     'system A': {
-        'query 1': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'average': 8/3},
-        'query 2': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 2.5, 'total': 4, 'average': 2.0},
-        'query 3': {'25-percentile': 2.75, '50-percentile': 3.5, '75-percentile': 4.25, 'total': 7, 'average': 3.5},
+        'query 1': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'mean': 8/3},
+        'query 2': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 2.5, 'total': 4, 'mean': 2.0},
+        'query 3': {'25-percentile': 2.75, '50-percentile': 3.5, '75-percentile': 4.25, 'total': 7, 'mean': 3.5},
     },
     'system B': {
-        'query 1': {'25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'average': None},
-        'query 2': {'25-percentile': 1.75, '50-percentile': 2.5, '75-percentile': 3.25, 'total': 5, 'average': 2.5},
-        'query 3': {'25-percentile': 2.5, '50-percentile': 3.0, '75-percentile': 3.5, 'total': 6, 'average': 3.0},
+        'query 1': {'25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'mean': None},
+        'query 2': {'25-percentile': 1.75, '50-percentile': 2.5, '75-percentile': 3.25, 'total': 5, 'mean': 2.5},
+        'query 3': {'25-percentile': 2.5, '50-percentile': 3.0, '75-percentile': 3.5, 'total': 6, 'mean': 3.0},
     }
 }
 
 NUMERICAL_RESULTS_2 = {
     'system A': {
-        'query 1': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'average': 8/3},
-        'query 2': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 2.5, 'total': 4, 'average': 2.0},
-        'query 3': {'25-percentile': 2.75, '50-percentile': 3.5, '75-percentile': 4.25, 'total': 7, 'average': 3.5},
+        'query 1': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'mean': 8/3},
+        'query 2': {'25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 2.5, 'total': 4, 'mean': 2.0},
+        'query 3': {'25-percentile': 2.75, '50-percentile': 3.5, '75-percentile': 4.25, 'total': 7, 'mean': 3.5},
     },
     'system B': {
-        'query 1': {'25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'average': None},
-        'query 2': {'25-percentile': 1.75, '50-percentile': 2.5, '75-percentile': 3.25, 'total': 5, 'average': 2.5},
-        'query 3': {'25-percentile': 0.0, '50-percentile': 1.0, '75-percentile': 2.5, 'total': 6, 'average': 1.5},
+        'query 1': {'25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'mean': None},
+        'query 2': {'25-percentile': 1.75, '50-percentile': 2.5, '75-percentile': 3.25, 'total': 5, 'mean': 2.5},
+        'query 3': {'25-percentile': 0.0, '50-percentile': 1.0, '75-percentile': 2.5, 'total': 6, 'mean': 1.5},
     }
 }
 
@@ -191,27 +191,27 @@ class TestNumericalField(unittest.TestCase):
         # Default percentiles [1, 25, 50, 75, 99].
         self.assertEqual(field_a.at_k(result_a, k=10), {
             '1-percentile': 1.02, '25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5,
-            '99-percentile': 4.94, 'total': 8, 'average': 8/3
+            '99-percentile': 4.94, 'total': 8, 'mean': 8/3
         })
         # Percentiles [25, 50, 75].
         self.assertEqual(field_b.at_k(result_a, k=10), {
-            '25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'average': 8/3
+            '25-percentile': 1.5, '50-percentile': 2.0, '75-percentile': 3.5, 'total': 8, 'mean': 8/3
         })
         # Percentiles [25, 50, 75], k smaller than results length.
         self.assertEqual(field_b.at_k(result_a, k=1), {
-            '25-percentile': 5, '50-percentile': 5, '75-percentile': 5, 'total': 5, 'average': 5.0
+            '25-percentile': 5, '50-percentile': 5, '75-percentile': 5, 'total': 5, 'mean': 5.0
         })
         # Percentiles [25, 50, 75], None in results, but `ignore_none=True`.
         self.assertEqual(field_b.at_k(result_b, k=10), {
-            '25-percentile': 2.5, '50-percentile': 3.0, '75-percentile': 3.5, 'total': 6, 'average': 3.0
+            '25-percentile': 2.5, '50-percentile': 3.0, '75-percentile': 3.5, 'total': 6, 'mean': 3.0
         })
         # Percentiles [25, 50, 75], None in results, and `ignore_none=False`.
         self.assertEqual(field_c.at_k(result_b, k=10), {
-            '25-percentile': 1.0, '50-percentile': 2.0, '75-percentile': 3.0, 'total': 6, 'average': 2.0
+            '25-percentile': 1.0, '50-percentile': 2.0, '75-percentile': 3.0, 'total': 6, 'mean': 2.0
         })
         # Empty results
         self.assertEqual(field_b.at_k([], k=10), {
-            '25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'average': None
+            '25-percentile': None, '50-percentile': None, '75-percentile': None, 'total': None, 'mean': None
         })
 
     def test_compute_metrics(self):
@@ -221,10 +221,10 @@ class TestNumericalField(unittest.TestCase):
         pd.testing.assert_frame_equal(
             field.compute_metrics(BaseResult(MOCK_RESULTS), k=10).sort_index(axis=1),
             pd.DataFrame(
-                [(i['25-percentile'], i['50-percentile'], i['75-percentile'], i['total'], i['average'])
+                [(i['25-percentile'], i['50-percentile'], i['75-percentile'], i['total'], i['mean'])
                  for results in NUMERICAL_RESULTS_1.values() for i in results.values()],
                 index=index,
-                columns=['25-percentile', '50-percentile', '75-percentile', 'total', 'average']
+                columns=['25-percentile', '50-percentile', '75-percentile', 'total', 'mean']
             ).sort_index(axis=1)
         )
         # Empty results.
@@ -240,9 +240,9 @@ class TestNumericalField(unittest.TestCase):
         pd.testing.assert_frame_equal(
             field2.compute_metrics(BaseResult(MOCK_RESULTS), k=10).sort_index(axis=1),
             pd.DataFrame(
-                [(i['25-percentile'], i['50-percentile'], i['75-percentile'], i['total'], i['average'])
+                [(i['25-percentile'], i['50-percentile'], i['75-percentile'], i['total'], i['mean'])
                  for results in NUMERICAL_RESULTS_2.values() for i in results.values()],
                 index=index,
-                columns=['25-percentile', '50-percentile', '75-percentile', 'total', 'average']
+                columns=['25-percentile', '50-percentile', '75-percentile', 'total', 'mean']
             ).sort_index(axis=1)
         )
