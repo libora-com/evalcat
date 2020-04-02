@@ -1,4 +1,4 @@
-# Evaluation
+# evalcat
 ​
 This module for evaluating and comparing the ranked results of search systems.
 This module is built to parse and compute metrics from search engine results.
