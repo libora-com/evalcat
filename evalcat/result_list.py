@@ -1,9 +1,9 @@
 import pandas as pd
 
 
-from evaluation.base_result import BaseResult
-from evaluation.fields.base import Field
-from evaluation.rbo import rbo
+from evalcat.base_result import BaseResult
+from evalcat.fields.base import Field
+from evalcat.rbo import rbo
 
 
 class ResultList:
