@@ -70,5 +70,5 @@ def at_k(result_list, k):
 
 To run the tests in this module, run the following command.
 ```
->>> python3 -m unittest discover evaluation.tests
+>>> python3 -m unittest discover evalcat.tests
 ```
