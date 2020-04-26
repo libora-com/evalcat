@@ -2,9 +2,9 @@ import unittest
 
 import pandas as pd
 
-from evaluation.base_result import BaseResult
-from evaluation.fields.categorical import CategoricalField
-from evaluation.fields.numerical import NumericalField
+from evalcat.base_result import BaseResult
+from evalcat.fields.categorical import CategoricalField
+from evalcat.fields.numerical import NumericalField
 
 
 """Mock functions for testing ResultList."""

@@ -2,8 +2,8 @@ import unittest
 
 import pandas as pd
 
-from evaluation.result_list import ResultList
-from evaluation.fields.base import Field
+from evalcat.result_list import ResultList
+from evalcat.fields.base import Field
 
 
 """Mock functions for testing ResultList."""

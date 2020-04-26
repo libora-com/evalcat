@@ -1,4 +1,4 @@
-# Evaluation
+# evalcat
 ​
 This module for evaluating and comparing the ranked results of search systems.
 This module is built to parse and compute metrics from search engine results.
@@ -70,5 +70,5 @@ def at_k(result_list, k):
 
 To run the tests in this module, run the following command.
 ```
->>> python3 -m unittest discover evaluation.tests
+>>> python3 -m unittest discover evalcat.tests
 ```

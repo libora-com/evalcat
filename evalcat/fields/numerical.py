@@ -1,7 +1,7 @@
 import math
 
 
-from evaluation.fields.base import Field
+from evalcat.fields.base import Field
 
 
 class NumericalField(Field):
