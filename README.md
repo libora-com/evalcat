@@ -3,6 +3,20 @@
 This module aims to assist evaluating and comparing the ranked results of search systems
 by providing methods to parse and compute metrics from search engine results.
 ​
+## Installation
+
+Evalcat can be install using pip.
+```
+$ pip install evalcat
+``` 
+
+Alternatively, we can manually install by cloning this repository.
+```
+$ git clone ...
+$ cd evalcat
+$ python3 setup.py install
+```
+
 ## Usage
 
 The main class in this module is `ResultList`. 
