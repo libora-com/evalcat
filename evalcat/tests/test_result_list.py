@@ -214,7 +214,3 @@ class TestResultList(unittest.TestCase):
             reslist2.rank_biased_overlap(identifier='id', systems=['system A'])
         with self.assertRaises(ValueError):
             reslist2.rank_biased_overlap(identifier='id', systems=['system A', 'System C'])
-
-
-if __name__ == '__main__':
-    unittest.main()
