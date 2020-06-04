@@ -71,7 +71,7 @@ class ResultList:
         else:
             raise TypeError("`field_name` must be a string.")
 
-    def add_field(self, fields, k=10, replace=False):
+    def add_fields(self, fields, k=10, replace=False):
         if isinstance(fields, Field):
             fields = [fields]
         for f in fields:

@@ -91,8 +91,8 @@ class TestResultList(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.result_list._get_field_from_summary(12)
 
-    def test_add_field(self):
-        self.result_list.add_field(MockField2('mock2'))
+    def test_add_fields(self):
+        self.result_list.add_fields(MockField2('mock2'))
         self.assertIn('mock2', self.result_list.summary)
         self.assertIn('metric_sum', self.result_list.summary['mock2'].columns)
         # Check mock is unaffected.
@@ -101,10 +101,10 @@ class TestResultList(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             # Did not pass `replace=True` when adding a valid field.
-            self.result_list.add_field(MockField())
+            self.result_list.add_fields(MockField())
 
         # Replace original mock field with mock2.
-        self.result_list.add_field(MockField2('mock'), replace=True)
+        self.result_list.add_fields(MockField2('mock'), replace=True)
         self.assertIn('mock', self.result_list.summary)
         self.assertIn('metric_sum', self.result_list.summary['mock'].columns)
         # Should not have metric_product.
