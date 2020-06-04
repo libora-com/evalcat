@@ -28,6 +28,8 @@ class ResultList:
         ```
     fields : list of Field
         Contains the fields to be evaluated. List items should be instances of Field subclasses.
+    k : int
+        Depth of search results for metrics to be computed.
 
     Attributes
     ----------
@@ -72,6 +74,18 @@ class ResultList:
             raise TypeError("`field_name` must be a string.")
 
     def add_fields(self, fields, k=10, replace=False):
+        """Adds new fields to the ResultList and computes metrics.
+
+        Parameters
+        ----------
+        fields : list of Field, or Field
+            Contains the fields to be evaluated. List items should be instances of Field subclasses.
+        k : int
+            Depth of search results for metrics to be computed.
+        replace : bool, default=False
+            If false, raises ValueError if there  is already a field with the same name as the new field.
+            Else it will replace the old field.
+        """
         if isinstance(fields, Field):
             fields = [fields]
         for f in fields:
