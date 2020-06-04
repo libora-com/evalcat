@@ -53,12 +53,10 @@ class ResultList:
             self.base_result = results
         else:
             self.base_result = BaseResult(results, **kwargs)
-        self.fields = fields
+        self.fields = fields if fields else []
         self.summary = self._compute_summary(k)
 
     def _compute_summary(self, k=10):
-        if not self.fields:
-            return
         summary = {}
         for field in self.fields:
             summary[field.name] = field.compute_metrics(self.base_result, k)
@@ -72,6 +70,15 @@ class ResultList:
                 return self.summary[field_name]
         else:
             raise TypeError("`field_name` must be a string.")
+
+    def add_field(self, fields, k=10, replace=False):
+        if isinstance(fields, Field):
+            fields = [fields]
+        for f in fields:
+            if f.name in self.summary and not replace:
+                raise ValueError(f'Field {f} already exists. Pass `replace=True` to override.')
+            self.fields.append(f)
+            self.summary[f.name] = f.compute_metrics(self.base_result, k)
 
     def get_query_metric_df(self, field_name, system):
         """Returns a DataFrame comparing queries against metrics for a single system.

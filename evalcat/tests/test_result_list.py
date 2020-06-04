@@ -38,6 +38,14 @@ class MockField(Field):
         return {metric.__name__: metric(res[:k]) for metric in [metric_sum, metric_product]}
 
 
+class MockField2(Field):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def at_k(self, res, k=10):
+        return {metric.__name__: metric(res[:k]) for metric in [metric_sum]}
+
+
 # Input for ResultList is in this format.
 MOCK_RESULTS = {
     'system A': {
@@ -82,6 +90,25 @@ class TestResultList(unittest.TestCase):
             self.result_list._get_field_from_summary('wrong_field')
         with self.assertRaises(TypeError):
             self.result_list._get_field_from_summary(12)
+
+    def test_add_field(self):
+        self.result_list.add_field(MockField2('mock2'))
+        self.assertIn('mock2', self.result_list.summary)
+        self.assertIn('metric_sum', self.result_list.summary['mock2'].columns)
+        # Check mock is unaffected.
+        self.assertIn('mock', self.result_list.summary)
+        self.assertIn('metric_product', self.result_list.summary['mock'].columns)
+
+        with self.assertRaises(ValueError):
+            # Did not pass `replace=True` when adding a valid field.
+            self.result_list.add_field(MockField())
+
+        # Replace original mock field with mock2.
+        self.result_list.add_field(MockField2('mock'), replace=True)
+        self.assertIn('mock', self.result_list.summary)
+        self.assertIn('metric_sum', self.result_list.summary['mock'].columns)
+        # Should not have metric_product.
+        self.assertNotIn('metric_product', self.result_list.summary['mock'].columns)
 
     def test_get_query_metric_matrix(self):
         # Testing good queries.
